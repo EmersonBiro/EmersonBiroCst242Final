@@ -1,39 +1,31 @@
 package view;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import java.util.ArrayList;
+
+import handling.GloblVars;
+import handling.GloblVars.Events;
+import handling.Observer;
 import javafx.geometry.Insets;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
-public class Login extends Stage {
-
-	public Login() {
-		this.setTitle("SAIN LOGIN");
-		BorderPane root = new BorderPane();
-		Scene scene = new Scene(root, 300, 175);
-
-		root.setTop(top());
-
-		this.setResizable(false);
-		this.setScene(scene);
-	}
+public class LoginView extends ViewGeneric {
 
 	private TextField usernamet;
 	private PasswordField passwordt;
-	private Button loginb;
 
-	public VBox top() {
-		VBox top = new VBox(10);
+	public LoginView(Stage stage, ArrayList<Observer> obsArr) {
+		super(stage, new VBox(10), GloblVars.LV_WIDTH, GloblVars.LV_HEIGHT, obsArr);
+		VBox vb = (VBox) getRoot();
+		vb.setStyle("-fx-alignment: center center");
+		obsArr = new ArrayList<>();
 
 		GridPane gridPane = new GridPane();
 		gridPane.setHgap(10);
@@ -41,7 +33,7 @@ public class Login extends Stage {
 		gridPane.setPadding(new Insets(0, 10, 10, 10)); // top right bottom left
 
 		HBox title = new HBox(10);
-		title.setPadding(new Insets(10, 10, 10, 10));
+		title.setPadding(new Insets(0, 10, 0, 10));
 		Label loginInfo = new Label("Enter username and password");
 		loginInfo.setFont(new Font(16));
 		title.getChildren().addAll(loginInfo);
@@ -58,7 +50,7 @@ public class Login extends Stage {
 		GridPane.setConstraints(passwordl, 0, 1);
 		GridPane.setConstraints(passwordt, 1, 1);
 
-		loginb = new Button("Login");
+		Button loginb = new Button("Login");
 		loginb.setMinWidth(100);
 		GridPane.setConstraints(loginb, 0, 2);
 
@@ -67,25 +59,29 @@ public class Login extends Stage {
 		GridPane.setConstraints(exitb, 1, 2);
 
 		gridPane.getChildren().addAll(usernamel, usernamet, passwordl, passwordt, loginb, exitb);
-		top.getChildren().addAll(title, gridPane);
+		vb.getChildren().addAll(title, gridPane);
 
-		exitb.setOnAction(e -> {
-			System.exit(0);
+		loginb.setOnAction(e -> {
+			NotifyObservers(Events.LV_LOGIN_BUTTON);
 		});
 
-		return top;
+		exitb.setOnAction(e -> {
+			NotifyObservers(Events.EXIT_BUTTON);
+		});
+
+		init();
+
 	}
 
-	public void loginButtonPressed(EventHandler<ActionEvent> ev) {
-		loginb.setOnAction(ev);
+	public void stop() {
+		stage.close();
 	}
 
-	public String getUsernamet() {
+	public String getUsername() {
 		return usernamet.getText();
 	}
 
-	public String getPasswordt() {
+	public String getPassword() {
 		return passwordt.getText();
 	}
-
 }
