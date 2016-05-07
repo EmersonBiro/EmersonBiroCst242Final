@@ -1,17 +1,21 @@
 package view;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import handling.GloblVars;
+import handling.GloblVars.Events;
 import handling.Observer;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
@@ -19,18 +23,19 @@ public class StudentView extends ViewGeneric {
 
 	private BorderPane root;
 
-	public StudentView(Stage stage, ArrayList<Observer> obsArr, String[] info, ArrayList<String> coursesTaken) {
+	public StudentView(Stage stage, ArrayList<Observer> obsArr) {
 		super(stage, new BorderPane(), GloblVars.SV_WIDTH, GloblVars.SV_HEIGHT, obsArr);
 		root = (BorderPane) getRoot();
 		obsArr = new ArrayList<>();
 
-		studentInfoTop(info);
-
 		setCenter();
+		bottom();
 		init();
 	}
 
-	private void studentInfoTop(String[] info) {
+	private Label gpaR;
+
+	public void studentInfoTop(String[] info) {
 		GridPane gp = new GridPane();
 		gp.setPadding(new Insets(10, 10, 0, 10));
 		gp.setHgap(100);
@@ -53,7 +58,7 @@ public class StudentView extends ViewGeneric {
 
 		Label gpaL = new Label("GPA: ");
 		GridPane.setConstraints(gpaL, 0, 3);
-		Label gpaR = new Label();
+		gpaR = new Label();
 		GridPane.setConstraints(gpaR, 1, 3);
 
 		Label campusL = new Label("Campus: ");
@@ -102,6 +107,9 @@ public class StudentView extends ViewGeneric {
 	///////////////////////////////////////////////
 	private ListView<String> currTakingCoursesList = new ListView<>();
 
+	public ListView<String> getCurrTakingCoursesList() {
+		return currTakingCoursesList;
+	}
 	///////////////////////////////////////////////
 
 	public void setCenter() {
@@ -142,6 +150,51 @@ public class StudentView extends ViewGeneric {
 				currTakingCoursesList);
 
 		root.setCenter(center);
+	}
+
+	public void bottom() {
+		HBox bottom = new HBox(10);
+		bottom.setPadding(new Insets(10, 10, 10, 10));
+		bottom.setAlignment(Pos.CENTER);
+
+		Button sain = new Button("SAIN Report");
+		Button whatIf = new Button("What-If Analysis");
+
+		bottom.getChildren().addAll(sain, whatIf);
+
+		sain.setOnAction(e -> {
+			NotifyObservers(Events.SV_SAIN_BUTTON);
+		});
+
+		whatIf.setOnAction(e -> {
+			NotifyObservers(Events.SV_WHATIF_BUTTON);
+		});
+
+		root.setBottom(bottom);
+	}
+
+	public String whatIfChooseMajor(ArrayList<String> majors) {
+		List<String> choices = new ArrayList<>();
+		for (int i = 0; i < majors.size(); i++) {
+			choices.add(majors.get(i).split(" ")[2] + " " + majors.get(i).split(" ")[0] + " "
+					+ majors.get(i).split(" ")[1]);
+		}
+
+		ChoiceDialog<String> dialog = new ChoiceDialog<>("", choices);
+		dialog.setTitle("What-if Anaylsis");
+		dialog.setHeaderText("What-If Analysis");
+		dialog.setContentText("Choose your major:");
+
+		Optional<String> result = dialog.showAndWait();
+
+		if (result.isPresent()) {
+			return result.get().split(" ")[0];
+		}
+		return null;
+	}
+
+	public Label getGpaR() {
+		return gpaR;
 	}
 
 }

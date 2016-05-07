@@ -29,13 +29,17 @@ public class Controller implements Observer {
 		case LV_LOGIN_BUTTON:
 
 			if (sql.checkLogin(((LoginView) view).getUsername(), ((LoginView) view).getPassword())) {
-				((LoginView) view).stop(); // close the login window
-				view = new StudentView(view.getStage(), view.getObservers(), sql.getStudentData(), sql.coursesTaken());
-				view.getStage().setTitle("SAIN Report");
-				((StudentView)view).getReqCoursesTakenList().setItems(sql.getReqCoursesTaken());
-				((StudentView)view).getOtherCoursesTakenList().setItems(sql.getOtherCoursesTaken());
-				((StudentView)view).getWithFailedCoursesTakenList().setItems(sql.getFailedWithdrawn());
-				view.getStage().setResizable(true);
+				if (sql.isStudent()) {
+					((LoginView) view).stop(); // close the login window
+					view = new StudentView(view.getStage(), view.getObservers());
+					view.getStage().setTitle("SAIN Report");
+
+					handleStudent();
+				} else if (sql.isFaculty()) {
+
+				} else if (sql.isAdmin()) {
+
+				}
 			} else {
 				view.errorWindow();
 			}
@@ -44,9 +48,35 @@ public class Controller implements Observer {
 		case EXIT_BUTTON:
 			System.exit(0);
 			break;
+		case SV_SAIN_BUTTON:
+			sql.getAccountData();
+			handleStudent();
+			break;
+		case SV_WHATIF_BUTTON:
+
+			if (sql.setMajor(((StudentView) view).whatIfChooseMajor(sql.getMajorBag()))) {
+				((StudentView) view).getReqCoursesTakenList().setItems(sql.getReqCoursesTaken());
+				((StudentView) view).getOtherCoursesTakenList().setItems(sql.getOtherCoursesTaken());
+				((StudentView) view).getWithFailedCoursesTakenList().setItems(sql.getFailedWithdrawn());
+				((StudentView) view).getCurrTakingCoursesList().setItems(sql.coursesTaking());
+			}
+			break;
 		default:
 			break;
 		}
+	}
+
+	private void handleStudent() {
+
+		sql.setStudentData();
+		((StudentView) view).studentInfoTop(sql.getPersonData());
+		((StudentView) view).getReqCoursesTakenList().setItems(sql.getReqCoursesTaken());
+		((StudentView) view).getOtherCoursesTakenList().setItems(sql.getOtherCoursesTaken());
+		((StudentView) view).getWithFailedCoursesTakenList().setItems(sql.getFailedWithdrawn());
+		((StudentView) view).getCurrTakingCoursesList().setItems(sql.coursesTaking());
+		((StudentView) view).getGpaR().setText(sql.getCalcGpa());
+		view.getStage().setResizable(true);
+
 	}
 
 }
