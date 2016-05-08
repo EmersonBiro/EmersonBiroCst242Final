@@ -112,9 +112,11 @@ public class MySql {
 			rs = myStmt.executeQuery(query);
 
 			while (rs.next()) {
-				facInfoBag[0] = rs.getString("faculty_id");
-				facInfoBag[1] = rs.getString("first_name") + " " + rs.getString("last_name");
-				facInfoBag[2] = rs.getString("rank");
+				if (rs.getString("account_id").equals(accountId)) {
+					facInfoBag[0] = rs.getString("faculty_id");
+					facInfoBag[1] = rs.getString("first_name") + " " + rs.getString("last_name");
+					facInfoBag[2] = rs.getString("rank");
+				}
 			}
 
 		} catch (SQLException e) {
@@ -127,7 +129,7 @@ public class MySql {
 
 	public void getAdminInfo() {
 		admInfoBag = new String[3];
-		String query = "SELECT * FROM sain_report.faculty;";
+		String query = "SELECT * FROM sain_report.admin;";
 
 		ResultSet rs;
 
@@ -135,9 +137,11 @@ public class MySql {
 			rs = myStmt.executeQuery(query);
 
 			while (rs.next()) {
-				admInfoBag[0] = rs.getString("admin_id");
-				admInfoBag[1] = rs.getString("first_name") + " " + rs.getString("last_name");
-				admInfoBag[2] = rs.getString("rank");
+				if (rs.getString("account_id").equals(accountId)) {
+					admInfoBag[0] = rs.getString("admin_id");
+					admInfoBag[1] = rs.getString("first_name") + " " + rs.getString("last_name");
+					admInfoBag[2] = rs.getString("rank");
+				}
 			}
 
 		} catch (SQLException e) {
@@ -182,8 +186,34 @@ public class MySql {
 	private ArrayList<String> coursesTakingBag;
 	private ArrayList<String> majorRequirementBag;
 	private ArrayList<String> majorBag;
+	private ObservableList<String> ctkn;
+	private ObservableList<String> courses;
+	private ArrayList<String> coursesBag;
+
+	public void courses() {
+		courses = FXCollections.observableArrayList();
+		coursesBag = new ArrayList<>();
+		String query = "SELECT * FROM sain_report.courses;";
+		ResultSet rs;
+
+		try {
+			rs = myStmt.executeQuery(query);
+
+			while (rs.next()) {
+				coursesBag.add(rs.getString("area_required") + " " + rs.getString("course_name")
+						+ rs.getString("course_number") + "		" + "IP" + "		" + rs.getString("course_credit"));
+				courses.add(rs.getString("course_name") + rs.getString("course_number") + "		" + "IP" + "		"
+						+ rs.getString("course_credit"));
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public void coursesTaken() {
+		ctkn = FXCollections.observableArrayList();
+		ctkn.add("COURSES TAKEN\nCOURSE		GRADE	CREDITS");
 		totalCredits = 0;
 		coursesTakenBag = new ArrayList<>();
 		String query = "SELECT * FROM sain_report.courses_taken;";
@@ -198,6 +228,8 @@ public class MySql {
 							+ rs.getString("course_credit_name") + " " + rs.getString("grade") + " "
 							+ rs.getString("course_credit"));
 					totalCredits += Double.valueOf(rs.getString("course_credit"));
+					ctkn.add(rs.getString("course_name") + rs.getString("course_number") + "		"
+							+ rs.getString("grade") + "		" + rs.getString("course_credit"));
 				}
 			}
 
@@ -291,8 +323,10 @@ public class MySql {
 	////////////////////////////////////////////////////////////////
 
 	// this method returns an observable list of courses taking
+	private ObservableList<String> tak;
+
 	public ObservableList<String> getCoursesTaking() {
-		ObservableList<String> tak = FXCollections.observableArrayList();
+		tak = FXCollections.observableArrayList();
 		tak.add("COURSE		GRADE	CREDITS");
 
 		String query = "SELECT * FROM sain_report.courses_taking;";
@@ -390,13 +424,13 @@ public class MySql {
 				}
 
 			}
-			
+
 			for (int j = 0; j < coursesTakingBag.size(); j++) {
-				if(coursesTakingBag.get(j).split(" ")[1].equals(majorRequirementBag.get(i).split(" ")[2])) {
+				if (coursesTakingBag.get(j).split(" ")[1].equals(majorRequirementBag.get(i).split(" ")[2])) {
 					crsCredit -= Double.valueOf(coursesTakingBag.get(j).split(" ")[3]);
 				}
 			}
-			
+
 			String temp = majorRequirementBag.get(i).split(" ")[4] + "\t\t\t" + Double.valueOf(crsCredit);
 
 			if (Double.valueOf(crsCredit) > 0) {
@@ -434,6 +468,7 @@ public class MySql {
 		majorRequirements();
 		coursesTaken();
 		coursesTaking();
+		courses();
 		calculateGpa();
 
 	}
@@ -519,6 +554,110 @@ public class MySql {
 		}
 	}
 
+	public void updateSelectedGrade(String course, String newGrade) {
+		String query = "update courses_taken set grade = ? where student_id = ? and course_name = ? and course_number = ?";
+		try {
+			PreparedStatement preparedStmt = myConn.prepareStatement(query);
+			preparedStmt.setString(1, newGrade.toUpperCase());
+			preparedStmt.setString(2, studentId);
+			preparedStmt.setString(3, course.substring(0, 3));
+			preparedStmt.setString(4, course.substring(3, 6));
+
+			preparedStmt.executeUpdate();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void deleteSelectedClass(String course) {
+		String query = "delete from courses_taking where student_id = ? and course_name = ? and course_number = ?";
+		PreparedStatement preparedStmt;
+		try {
+			preparedStmt = myConn.prepareStatement(query);
+			preparedStmt.setString(1, studentId);
+			preparedStmt.setString(2, course.substring(0, 3));
+			preparedStmt.setString(3, course.substring(3, 6));
+
+			preparedStmt.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	private boolean alreadyTaking;
+
+	public void addSelectedClass(String selected) {
+		alreadyTaking = false;
+		String query = " insert into courses_taking (student_id, course_name, course_number, course_credit, course_credit_name)"
+				+ " values (?, ?, ?, ?, ?)";
+
+		if (courseNotTakenCheck(selected)) {
+			String areaRequired = courseSearch(selected);
+			try {
+				PreparedStatement preparedStmt = myConn.prepareStatement(query);
+
+				preparedStmt.setString(1, studentId);
+				preparedStmt.setString(2, selected.substring(0, 3));
+				preparedStmt.setString(3, selected.substring(3, 6));
+				preparedStmt.setString(4, selected.split("		")[2]);
+				preparedStmt.setString(5, areaRequired);
+
+				preparedStmt.execute();
+
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		} else {
+			alreadyTaking = true;
+		}
+
+	}
+
+	public boolean courseNotTakenCheck(String selected) {
+		String query = "SELECT * FROM sain_report.courses_taking;";
+		ResultSet rs;
+
+		try {
+			rs = myStmt.executeQuery(query);
+
+			while (rs.next()) {
+				String temp = rs.getString("course_name") + rs.getString("course_number");
+				if (temp.equals(selected.substring(0, 6)) && rs.getString("student_id").equals(studentId)) {
+					return false;
+				}
+
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return true;
+	}
+
+	public String courseSearch(String selected) {
+		String query = "SELECT * FROM sain_report.courses;";
+		ResultSet rs;
+
+		try {
+			rs = myStmt.executeQuery(query);
+
+			while (rs.next()) {
+				String temp = rs.getString("course_name") + rs.getString("course_number");
+				if (selected.split("		")[0].equals(temp)) {
+					return rs.getString("area_required");
+				}
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return "";
+	}
+
 	// getter methods
 	public String[] getStuInfoBag() {
 		return stuInfoBag;
@@ -539,5 +678,22 @@ public class MySql {
 	public String getCalcGpa() {
 		return calcGpa;
 	}
+
+	public ObservableList<String> getCtkn() {
+		return ctkn;
+	}
+
+	public ObservableList<String> getTak() {
+		return tak;
+	}
+
+	public ObservableList<String> getCourses() {
+		return courses;
+	}
+
+	public boolean isAlreadyTaking() {
+		return alreadyTaking;
+	}
+
 	// end of getter methods
 }

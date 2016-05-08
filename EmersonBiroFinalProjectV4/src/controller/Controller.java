@@ -11,6 +11,7 @@ import view.ViewGeneric;
 public class Controller implements Observer {
 	private ViewGeneric view;
 	private MySql sql;
+	private String level;
 
 	public Controller(ViewGeneric view, MySql sql) {
 		view.addObserver(this);
@@ -36,7 +37,8 @@ public class Controller implements Observer {
 			break;
 		case LV_LOGIN_BUTTON:
 			if (sql.checkLogin(((LoginView) view).getUsername(), ((LoginView) view).getPassword())) {
-				switch (sql.getLoggedInLevel()) {
+				level = sql.getLoggedInLevel();
+				switch (level) {
 				case "1":
 					studentLogedIn();
 					break;
@@ -64,7 +66,37 @@ public class Controller implements Observer {
 			facultyLogedIn();
 			break;
 		case LOGOUT_BUTTON:
+			view.getStage().setTitle("SAIN LOGIN");
 			view = new LoginView(view.getStage(), view.getObservers());
+			break;
+		case MDFY_CRS_TAKEN:
+			((StudentView) view).modifyCoursesTaken(sql.getCtkn());
+			break;
+		case MDFY_CRS_TAKING:
+			((StudentView) view).modifyCoursesTaking(sql.getTak(), sql.getCourses());
+			break;
+		case CHANGE_GRADE_BUTTON:
+			sql.updateSelectedGrade(((StudentView) view).getSelected().split("		")[0],
+					((StudentView) view).getChangeGradet());
+			sql.getAccountData();
+			fillStudentTables();
+			((StudentView) view).modifyCoursesTaken(sql.getCtkn());
+			break;
+		case ADD_CLASS_BUTTON:
+			sql.addSelectedClass(((StudentView) view).getAddClasst());
+			sql.getAccountData();
+			fillStudentTables();
+			if (sql.isAlreadyTaking()) {
+				view.classAlreadyTaken();
+			}
+			((StudentView) view).modifyCoursesTaking(sql.getTak(), sql.getCourses());
+
+			break;
+		case DELTE_CLASS_BUTTON:
+			sql.deleteSelectedClass(((StudentView) view).getSelected().split("		")[0]);
+			sql.getAccountData();
+			fillStudentTables();
+			((StudentView) view).modifyCoursesTaking(sql.getTak(), sql.getCourses());
 			break;
 		default:
 			break;
@@ -75,12 +107,19 @@ public class Controller implements Observer {
 	private void adminLogedIn() {
 		sql.getAdminInfo(); // this will get data based on the admin that logged
 							// in
+
+		view = new FacultyView(view.getStage(), view.getObservers());
+		view.getStage().setTitle("SAIN REPORT");
+		view.getStage().setResizable(true);
+		((FacultyView) view).facultyInfoTop(sql.getAdmInfoBag());
 	}
 
 	private void facultyLogedIn() {
 		sql.getFacultyInfo(); // this will get data based on the faculty that
 								// logged in
+
 		view = new FacultyView(view.getStage(), view.getObservers());
+		view.getStage().setTitle("SAIN REPORT");
 		view.getStage().setResizable(true);
 		((FacultyView) view).facultyInfoTop(sql.getFacInfoBag());
 	}
@@ -89,6 +128,7 @@ public class Controller implements Observer {
 		sql.getStudentInfo(); // this will get data based on the student that
 								// logged in
 		view = new StudentView(view.getStage(), view.getObservers());
+		view.getStage().setTitle("SAIN REPORT");
 		view.getStage().setResizable(true);
 		((StudentView) view).setBottom();
 		((StudentView) view).studentInfoTop(sql.getStuInfoBag());
@@ -102,6 +142,9 @@ public class Controller implements Observer {
 			view = new StudentView(view.getStage(), view.getObservers());
 			view.getStage().setResizable(true);
 			((StudentView) view).setFaculty(true);
+			if (level.equals("3")) {
+				((StudentView) view).setAdmin(true);
+			}
 			((StudentView) view).setBottom();
 			((StudentView) view).studentInfoTop(sql.getStuInfoBag());
 			sql.getAccountData();
@@ -111,7 +154,7 @@ public class Controller implements Observer {
 		}
 
 	}
-	
+
 	private void fillStudentTables() {
 		((StudentView) view).getReqCoursesTakenList().setItems(sql.getReqCoursesTaken());
 		((StudentView) view).getOtherCoursesTakenList().setItems(sql.getOtherCoursesTaken());

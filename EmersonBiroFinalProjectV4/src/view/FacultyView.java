@@ -21,7 +21,7 @@ public class FacultyView extends ViewGeneric {
 	private BorderPane root;
 
 	public FacultyView(Stage stage, ArrayList<Observer> obsArr) {
-		super(stage, new BorderPane(), GloblVars.SV_WIDTH, GloblVars.SV_HEIGHT, obsArr);
+		super(stage, new BorderPane(), GloblVars.FV_WIDTH, GloblVars.FV_HEIGHT, obsArr);
 		root = (BorderPane) getRoot();
 		obsArr = new ArrayList<>();
 

@@ -7,12 +7,19 @@ import java.util.Optional;
 import handling.GloblVars;
 import handling.GloblVars.Events;
 import handling.Observer;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceDialog;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -28,7 +35,6 @@ public class StudentView extends ViewGeneric {
 		super(stage, new BorderPane(), GloblVars.SV_WIDTH, GloblVars.SV_HEIGHT, obsArr);
 		root = (BorderPane) getRoot();
 		obsArr = new ArrayList<>();
-
 		setCenter();
 		init();
 	}
@@ -38,6 +44,7 @@ public class StudentView extends ViewGeneric {
 	}
 
 	private Label gpaR;
+	private boolean admin = false;
 
 	public void studentInfoTop(String[] info) {
 		GridPane gp = new GridPane();
@@ -70,15 +77,32 @@ public class StudentView extends ViewGeneric {
 		Label campusR = new Label();
 		GridPane.setConstraints(campusR, 1, 4);
 
+		gp.getChildren().addAll(nameL, nameR, idL, idR, majorL, majorR, gpaL, gpaR, campusL, campusR);
+
 		idR.setText(info[0]);
 		nameR.setText(info[1]);
 		gpaR.setText(info[2]);
 		majorR.setText(info[3]);
 		campusR.setText(info[4]);
 
-		gp.getChildren().addAll(nameL, nameR, idL, idR, majorL, majorR, gpaL, gpaR, campusL, campusR);
+		if (admin) {
+			Button modifyCoursesTaken = new Button("Mdfy Crs Taken");
+			GridPane.setConstraints(modifyCoursesTaken, 2, 0);
+			Button modifyCoursesTaking = new Button("Mdfy Crs Taking");
+			GridPane.setConstraints(modifyCoursesTaking, 3, 0);
 
+			modifyCoursesTaken.setOnAction(e -> {
+				NotifyObservers(Events.MDFY_CRS_TAKEN);
+			});
+
+			modifyCoursesTaking.setOnAction(e -> {
+				NotifyObservers(Events.MDFY_CRS_TAKING);
+			});
+
+			gp.getChildren().addAll(modifyCoursesTaken, modifyCoursesTaking);
+		}
 		root.setTop(gp);
+		admin = false;
 	}
 
 	///////////////////////////////////////////////
@@ -201,17 +225,17 @@ public class StudentView extends ViewGeneric {
 		Button logout = new Button("Logout");
 		bottom.getChildren().addAll(logout, sain, whatIf);
 		Button back = null;
-		
+
 		if (faculty == true) {
 			back = new Button("Search Again");
 			bottom.getChildren().add(back);
-			
+
 			back.setOnAction(e -> {
 				NotifyObservers(Events.SV_BACK_BUTTON);
 			});
 		}
-		
-		logout.setOnAction(e->{
+
+		logout.setOnAction(e -> {
 			NotifyObservers(Events.LOGOUT_BUTTON);
 		});
 
@@ -247,12 +271,140 @@ public class StudentView extends ViewGeneric {
 		return null;
 	}
 
+	private String selected;
+	private ComboBox<String> changeGradet;
+	private ComboBox<String> addClasst;
+	
+	public void modifyCoursesTaken(ObservableList<String> s) {
+		Stage mct = new Stage();
+		mct.setTitle("Change Courses Taken");
+		HBox root = new HBox(10);
+		this.root.setDisable(true);
+		root.setPadding(new Insets(10, 10, 10, 10));
+		Scene scene = new Scene(root, 500, 500);
+
+		ListView<String> coursesTaken = new ListView<>();
+		coursesTaken.setItems(s);
+
+		VBox right = new VBox(10);
+		Label changeGrade = new Label("Select From Right,\n And Select New Grade");
+
+		changeGradet = new ComboBox();
+		changeGradet.getItems().addAll("A", "B+", "B", "C+", "C", "D+", "D", "F");
+		changeGradet.setValue("A");
+
+		Button mdfySelected = new Button("Change Grade");
+		Button close = new Button("Close");
+
+		right.getChildren().addAll(changeGrade, changeGradet, mdfySelected, close);
+
+		coursesTaken.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				selected = newValue;
+			}
+		});
+
+		mdfySelected.setOnAction(e -> {
+			NotifyObservers(Events.CHANGE_GRADE_BUTTON);
+			mct.close();
+		});
+
+		close.setOnAction(e -> {
+			mct.close();
+			this.root.setDisable(false);
+		});
+
+		mct.setOnCloseRequest(e -> {
+			this.root.setDisable(false);
+		});
+
+		root.getChildren().addAll(coursesTaken, right);
+
+		mct.setScene(scene);
+		mct.show();
+	}
+
+	public void modifyCoursesTaking(ObservableList<String> cTaking, ObservableList<String> courses) {
+		Stage mcting = new Stage();
+		mcting.setTitle("Change Courses Taking");
+		HBox root = new HBox(10);
+		this.root.setDisable(true);
+		root.setPadding(new Insets(10, 10, 10, 10));
+		Scene scene = new Scene(root, 500, 500);
+
+		ListView<String> coursesTaken = new ListView<>();
+		coursesTaken.setItems(cTaking);
+
+		VBox right = new VBox(10);
+		Label changeGrade = new Label("Select From Right,\n And Select New Class");
+
+		addClasst = new ComboBox<String>();
+		addClasst.getItems().addAll(courses);
+		addClasst.getSelectionModel().selectFirst();
+
+		Button add = new Button("Add class");
+		Button delete = new Button("Delete");
+		Button close = new Button("Close");
+
+		right.getChildren().addAll(changeGrade, addClasst,add,delete, close);
+
+		coursesTaken.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				selected = newValue;
+			}
+		});
+
+		add.setOnAction(e -> {
+			NotifyObservers(Events.ADD_CLASS_BUTTON);
+			mcting.close();
+		});
+		
+		delete.setOnAction(e->{
+			NotifyObservers(Events.DELTE_CLASS_BUTTON);
+			mcting.close();
+		});
+
+		close.setOnAction(e -> {
+			mcting.close();
+			this.root.setDisable(false);
+		});
+
+		mcting.setOnCloseRequest(e -> {
+			this.root.setDisable(false);
+		});
+
+		root.getChildren().addAll(coursesTaken, right);
+
+		mcting.setScene(scene);
+		mcting.show();
+	}
+
+	public String getChangeGradet() {
+		return (String) changeGradet.getValue();
+	}
+	
+	public String getAddClasst() {
+		return (String) addClasst.getValue();
+	}
+
+	public String getSelected() {
+		return selected;
+	}
+
 	public Label getGpaR() {
 		return gpaR;
 	}
 
 	public void setFaculty(boolean faculty) {
 		this.faculty = faculty;
+	}
+
+	public void setAdmin(boolean admin) {
+		this.admin = admin;
 	}
 
 }

@@ -45,6 +45,16 @@ public abstract class ViewGeneric extends Scene implements Subject {
 
 		alert.showAndWait();
 	}
+	
+	public void classAlreadyTaken() {
+		// this is just the error window you get if you failed to login
+		Alert alert = new Alert(AlertType.ERROR);
+		alert.setTitle("Class already taken");
+		alert.setHeaderText("The class you choose is taken already");
+		alert.setContentText("Try again or exit!");
+
+		alert.showAndWait();
+	}
 
 	protected void init() {
 		stage.setScene(this);
