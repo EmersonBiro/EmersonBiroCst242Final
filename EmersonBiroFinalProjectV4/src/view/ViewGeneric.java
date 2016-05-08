@@ -35,6 +35,16 @@ public abstract class ViewGeneric extends Scene implements Subject {
 
 		alert.showAndWait();
 	}
+	
+	public void idNotFoundWindow() {
+		// this is just the error window you get if you failed to login
+		Alert alert = new Alert(AlertType.ERROR);
+		alert.setTitle("ID not found");
+		alert.setHeaderText("The ID you entered was not found");
+		alert.setContentText("Try again or exit!");
+
+		alert.showAndWait();
+	}
 
 	protected void init() {
 		stage.setScene(this);

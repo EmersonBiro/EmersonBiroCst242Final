@@ -16,6 +16,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
@@ -29,8 +30,11 @@ public class StudentView extends ViewGeneric {
 		obsArr = new ArrayList<>();
 
 		setCenter();
-		bottom();
 		init();
+	}
+
+	public void setBottom() {
+		bottom();
 	}
 
 	private Label gpaR;
@@ -112,12 +116,30 @@ public class StudentView extends ViewGeneric {
 	}
 	///////////////////////////////////////////////
 
+	///////////////////////////////////////////////
+	private ListView<String> getCoursesNeededList = new ListView<>();
+
+	public ListView<String> getCoursesNeededList() {
+		return getCoursesNeededList;
+	}
+	///////////////////////////////////////////////
+
+	///////////////////////////////////////////////
+	private ListView<String> getSummaryList = new ListView<>();
+
+	public ListView<String> getSummaryList() {
+		return getSummaryList;
+	}
+	///////////////////////////////////////////////
+
 	public void setCenter() {
-		GridPane center = new GridPane();
+		VBox center = new VBox(10);
 		center.setPadding(new Insets(10, 10, 10, 10));
-		center.setAlignment(Pos.CENTER);
-		center.setHgap(10);
-		center.setVgap(10);
+		GridPane gridPaneCenter = new GridPane();
+		// gridPaneCenter.setPadding(new Insets(10, 10, 10, 10));
+		gridPaneCenter.setAlignment(Pos.CENTER);
+		gridPaneCenter.setHgap(10);
+		gridPaneCenter.setVgap(10);
 
 		Font font = new Font(20);
 
@@ -145,12 +167,29 @@ public class StudentView extends ViewGeneric {
 		GridPane.setConstraints(currentlyTakingCourses, 3, 0);
 		GridPane.setConstraints(currTakingCoursesList, 3, 1);
 
-		center.getChildren().addAll(reqCoursesTaken, otherCoursesTaken, withdrawnFailedCoursesTaken,
+		gridPaneCenter.getChildren().addAll(reqCoursesTaken, otherCoursesTaken, withdrawnFailedCoursesTaken,
 				currentlyTakingCourses, reqCoursesTakenList, otherCoursesTakenList, withFailedCoursesTakenList,
 				currTakingCoursesList);
 
+		VBox crsNeeded = new VBox(10);
+		Label coursesNeeded = new Label("Courses Needed");
+		coursesNeeded.setAlignment(Pos.CENTER);
+		coursesNeeded.setFont(font);
+
+		crsNeeded.getChildren().addAll(coursesNeeded, getCoursesNeededList);
+
+		VBox summary = new VBox(10);
+		Label summaryl = new Label("Summary");
+		summaryl.setAlignment(Pos.CENTER);
+		summaryl.setFont(font);
+
+		summary.getChildren().addAll(summaryl, getSummaryList);
+
+		center.getChildren().addAll(gridPaneCenter, crsNeeded, summary);
 		root.setCenter(center);
 	}
+
+	boolean faculty;
 
 	public void bottom() {
 		HBox bottom = new HBox(10);
@@ -159,8 +198,22 @@ public class StudentView extends ViewGeneric {
 
 		Button sain = new Button("SAIN Report");
 		Button whatIf = new Button("What-If Analysis");
-
-		bottom.getChildren().addAll(sain, whatIf);
+		Button logout = new Button("Logout");
+		bottom.getChildren().addAll(logout, sain, whatIf);
+		Button back = null;
+		
+		if (faculty == true) {
+			back = new Button("Search Again");
+			bottom.getChildren().add(back);
+			
+			back.setOnAction(e -> {
+				NotifyObservers(Events.SV_BACK_BUTTON);
+			});
+		}
+		
+		logout.setOnAction(e->{
+			NotifyObservers(Events.LOGOUT_BUTTON);
+		});
 
 		sain.setOnAction(e -> {
 			NotifyObservers(Events.SV_SAIN_BUTTON);
@@ -171,6 +224,7 @@ public class StudentView extends ViewGeneric {
 		});
 
 		root.setBottom(bottom);
+		faculty = false;
 	}
 
 	public String whatIfChooseMajor(ArrayList<String> majors) {
@@ -195,6 +249,10 @@ public class StudentView extends ViewGeneric {
 
 	public Label getGpaR() {
 		return gpaR;
+	}
+
+	public void setFaculty(boolean faculty) {
+		this.faculty = faculty;
 	}
 
 }
