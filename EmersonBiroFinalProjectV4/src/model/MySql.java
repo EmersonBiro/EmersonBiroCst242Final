@@ -19,7 +19,7 @@ public class MySql {
 	// this constructor establishes a connection to the database
 	public MySql() {
 
-		String url = "jdbc:mysql://localhost:3306/sain_report?useSSL=false";
+		String url = "jdbc:mysql://173.68.191.113:3306/sain_report?useSSL=false";
 		String user = "root";
 		String password = "drowssap";
 
@@ -182,6 +182,7 @@ public class MySql {
 	private double qualityPoints = 0;
 	private String calcGpa = "4.0";
 	private String majorId;
+	private int coursesTakingCresdits;
 	private ArrayList<String> coursesTakenBag;
 	private ArrayList<String> coursesTakingBag;
 	private ArrayList<String> majorRequirementBag;
@@ -239,6 +240,7 @@ public class MySql {
 	}
 
 	public void coursesTaking() {
+		coursesTakingCresdits = 0;
 		coursesTakingBag = new ArrayList<>();
 		String query = "SELECT * FROM sain_report.courses_taking;";
 		ResultSet rs;
@@ -251,6 +253,7 @@ public class MySql {
 					coursesTakingBag.add(rs.getString("course_name") + rs.getString("course_number") + " "
 							+ rs.getString("course_credit_name") + " " + rs.getString("grade") + " "
 							+ rs.getString("course_credit"));
+					coursesTakingCresdits += Integer.valueOf(rs.getString("course_credit"));
 				}
 			}
 
@@ -454,6 +457,7 @@ public class MySql {
 			}
 		}
 		sum.add("Credits Taken:\t\t\t" + stuInfoBag[5]);
+		sum.add("Current Credits Taking \t " + coursesTakingCresdits);
 		return sum;
 
 	}
