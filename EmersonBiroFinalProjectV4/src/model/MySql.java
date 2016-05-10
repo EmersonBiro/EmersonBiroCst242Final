@@ -28,7 +28,7 @@ public class MySql {
 	 */
 	public MySql() {
 
-		String url = "jdbc:mysql://173.68.191.113:3306/sain_report?useSSL=false";
+		String url = "jdbc:mysql://localhost:3306/sain_report?useSSL=false";
 		String user = "root";
 		String password = "rdt123";
 
