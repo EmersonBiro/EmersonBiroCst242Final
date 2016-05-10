@@ -2,6 +2,7 @@ package driver;
 
 import controller.Controller;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.stage.Stage;
 import model.MySql;
 import view.LoginView;
@@ -35,6 +36,10 @@ public class App extends Application {
 	 */
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		primaryStage.setOnCloseRequest(e->{
+			Platform.exit();
+			System.exit(0);
+		});
 		new Controller(new LoginView(primaryStage, null), new MySql());
 	}
 

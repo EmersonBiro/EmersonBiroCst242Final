@@ -25,6 +25,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 /**
@@ -331,7 +332,7 @@ public class StudentView extends ViewGeneric {
 		Stage mct = new Stage();
 		mct.setTitle("Change Courses Taken");
 		HBox root = new HBox(10);
-		this.root.setDisable(true);
+		mct.initModality(Modality.APPLICATION_MODAL);
 		root.setPadding(new Insets(10, 10, 10, 10));
 		Scene scene = new Scene(root, 500, 500);
 
@@ -341,7 +342,7 @@ public class StudentView extends ViewGeneric {
 		VBox right = new VBox(10);
 		Label changeGrade = new Label("Select From Right,\n And Select New Grade");
 
-		changeGradet = new ComboBox();
+		changeGradet = new ComboBox<String>();
 		changeGradet.getItems().addAll("A", "B+", "B", "C+", "C", "D+", "D", "F", "W");
 		changeGradet.setValue("A");
 
@@ -365,11 +366,6 @@ public class StudentView extends ViewGeneric {
 
 		close.setOnAction(e -> {
 			mct.close();
-			this.root.setDisable(false);
-		});
-
-		mct.setOnCloseRequest(e -> {
-			this.root.setDisable(false);
 		});
 
 		root.getChildren().addAll(coursesTaken, right);
@@ -393,7 +389,7 @@ public class StudentView extends ViewGeneric {
 		Stage mcting = new Stage();
 		mcting.setTitle("Change Courses Taking");
 		HBox root = new HBox(10);
-		this.root.setDisable(true);
+		mcting.initModality(Modality.APPLICATION_MODAL);
 		root.setPadding(new Insets(10, 10, 10, 10));
 		Scene scene = new Scene(root, 500, 500);
 
@@ -433,11 +429,6 @@ public class StudentView extends ViewGeneric {
 
 		close.setOnAction(e -> {
 			mcting.close();
-			this.root.setDisable(false);
-		});
-
-		mcting.setOnCloseRequest(e -> {
-			this.root.setDisable(false);
 		});
 
 		root.getChildren().addAll(coursesTaken, right);
