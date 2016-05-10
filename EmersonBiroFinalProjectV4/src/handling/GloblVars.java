@@ -1,6 +1,17 @@
 package handling;
-
+/**
+ * 
+ * This class is used to store global variables, like the width and length for the views
+ * and also contains Events for buttons
+ *
+ */
 public class GloblVars {
+	
+	/**
+	 * 
+	 * This enum class is used by mvc by the observer to be able to tell which button was pressed
+	 *
+	 */
 	public enum Events{
 		LV_LOGIN_BUTTON,
 		EXIT_BUTTON,

@@ -8,17 +8,39 @@ import view.LoginView;
 import view.StudentView;
 import view.ViewGeneric;
 
+/**
+ * This is the controller class where the interactions between the view and
+ * model happen. This is the basis of the MVC design pattern
+ *
+ */
 public class Controller implements Observer {
 	private ViewGeneric view;
 	private MySql sql;
 	private String level;
 
+	/**
+	 * 
+	 * This is the controller constructor, this is what is used when the program
+	 * runs.
+	 * 
+	 * @param view
+	 *            the view of the mvc
+	 * @param sql
+	 *            the model of the mvc
+	 */
 	public Controller(ViewGeneric view, MySql sql) {
 		view.addObserver(this);
 		this.view = view;
 		this.sql = sql;
 	}
 
+	/**
+	 * @param args
+	 *            args is the Event of the button pressed in the view
+	 * 
+	 * @precondition args is and instance of Events
+	 * 
+	 */
 	@Override
 	public void update(Object args) {
 		if (args instanceof Events) {
@@ -26,6 +48,15 @@ public class Controller implements Observer {
 		}
 	}
 
+	/**
+	 * 
+	 * @param event
+	 *            if event is an instant of Events, then it can be decoded
+	 * 
+	 * @precondition switch statement that decodes the event
+	 * 
+	 * @postcondition and action based on the event is fired
+	 */
 	private void decodeEvent(Events event) {
 		switch (event) {
 		case EXIT_BUTTON:
@@ -104,6 +135,10 @@ public class Controller implements Observer {
 		}
 	}
 
+	/**
+	 * 
+	 * @postcondition sets the correct data for the admin when he logs in
+	 */
 	private void adminLogedIn() {
 		sql.getAdminInfo(); // this will get data based on the admin that logged
 							// in
@@ -114,6 +149,9 @@ public class Controller implements Observer {
 		((FacultyView) view).facultyInfoTop(sql.getAdmInfoBag());
 	}
 
+	/**
+	 * @postcondition sets the correct data for the faculty when he logs in
+	 */
 	private void facultyLogedIn() {
 		sql.getFacultyInfo(); // this will get data based on the faculty that
 								// logged in
@@ -124,6 +162,9 @@ public class Controller implements Observer {
 		((FacultyView) view).facultyInfoTop(sql.getFacInfoBag());
 	}
 
+	/**
+	 * @Postcondition sets the correct data for the student when he logs in
+	 */
 	private void studentLogedIn() {
 		sql.getStudentInfo(); // this will get data based on the student that
 								// logged in
@@ -136,6 +177,14 @@ public class Controller implements Observer {
 		fillStudentTables();
 	}
 
+	/**
+	 * @precondition the id the faculty searched has to exist, and equal one of
+	 *               the students if persons is an admin, show the modify
+	 *               buttons
+	 * 
+	 * @postcondition shows the student view, after searched and displays it
+	 *                accordingly based on your level
+	 */
 	private void studentSearched() {
 		if (sql.searchStudent(((FacultyView) view).getId())) {
 			sql.getStudentInfo();
@@ -155,6 +204,11 @@ public class Controller implements Observer {
 
 	}
 
+	/**
+	 * @postcondition when this method is called, it refreshes all the tables
+	 *                with the most accurate data
+	 * 
+	 */
 	private void fillStudentTables() {
 		((StudentView) view).getReqCoursesTakenList().setItems(sql.getReqCoursesTaken());
 		((StudentView) view).getOtherCoursesTakenList().setItems(sql.getOtherCoursesTaken());

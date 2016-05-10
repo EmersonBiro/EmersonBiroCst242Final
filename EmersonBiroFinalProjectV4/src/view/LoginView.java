@@ -16,11 +16,27 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+/**
+ * 
+ * This class extends ViewGeneric which is used as a switch for showing
+ * different scenes, This class produces the view that you see when you run the
+ * program for the first time or logout
+ *
+ */
 public class LoginView extends ViewGeneric {
 
 	private TextField usernamet;
 	private PasswordField passwordt;
 
+	/**
+	 * This is the LoginView constructor which takes a stage and observer array.
+	 * this is what is classed when you use this view
+	 * 
+	 * @param stage
+	 *            the stage the view will show on
+	 * @param obsArr
+	 *            an array with the observers
+	 */
 	public LoginView(Stage stage, ArrayList<Observer> obsArr) {
 		super(stage, new VBox(10), GloblVars.LV_WIDTH, GloblVars.LV_HEIGHT, obsArr);
 		VBox vb = (VBox) getRoot();
@@ -73,6 +89,9 @@ public class LoginView extends ViewGeneric {
 
 	}
 
+	/**
+	 * @postcondition closes the stage
+	 */
 	public void stop() {
 		stage.close();
 	}

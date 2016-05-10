@@ -12,16 +12,25 @@ import java.util.ArrayList;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+/**
+ * 
+ * This class is where all of the calculations and manipulation of data occurs,
+ * where data comes from the controller and is used to be displayed on the view
+ *
+ */
 public class MySql {
 	private Connection myConn;
 	private Statement myStmt;
 
-	// this constructor establishes a connection to the database
+	/**
+	 * This constructor connects to the database of mysql to have access to all
+	 * the data to be used in the program
+	 */
 	public MySql() {
 
 		String url = "jdbc:mysql://173.68.191.113:3306/sain_report?useSSL=false";
 		String user = "root";
-		String password = "drowssap";
+		String password = "rdt123";
 
 		try {
 			// try to connect
@@ -41,6 +50,19 @@ public class MySql {
 	private String accountId;
 	private String studentId;
 
+	/**
+	 * 
+	 * @precondition the username and password equals something in the database
+	 * 
+	 * @postcondition connects to the database based on what account information
+	 *                was entered, if it was a student, faculty, or an admin
+	 * 
+	 * @param username
+	 *            username of the user
+	 * @param password
+	 *            password of ther user
+	 * @return Returns true or false based of if the login was good or bad
+	 */
 	public boolean checkLogin(String username, String password) {
 		// get the accounts table to be able to check
 		String query = "SELECT * FROM sain_report.accounts;";
@@ -72,6 +94,12 @@ public class MySql {
 	// these methods create bags for certain people based on account id
 	private String[] stuInfoBag;
 
+	/**
+	 * @precondition looks for the student logged in or searched in the database
+	 * 
+	 * @postcondition creates an array that holds some basic information of the
+	 *                student of focus
+	 */
 	public void getStudentInfo() {
 		stuInfoBag = new String[6];
 		String query = "SELECT * FROM sain_report.student;";
@@ -102,6 +130,12 @@ public class MySql {
 
 	private String[] facInfoBag;
 
+	/**
+	 * @precondition looks for the faculty logged in, on the database
+	 * 
+	 * @postcondition creates an array that holds some basic information of the
+	 *                faculty of focus
+	 */
 	public void getFacultyInfo() {
 		facInfoBag = new String[3];
 		String query = "SELECT * FROM sain_report.faculty;";
@@ -127,6 +161,13 @@ public class MySql {
 
 	private String[] admInfoBag;
 
+	/**
+	 * @precondition looks for the faculty logged in, on the database
+	 * 
+	 * @postcondition creates an array that holds some basic information of the
+	 *                faculty of focus
+	 * 
+	 */
 	public void getAdminInfo() {
 		admInfoBag = new String[3];
 		String query = "SELECT * FROM sain_report.admin;";
@@ -154,6 +195,16 @@ public class MySql {
 	// if it is true
 	private String studentSearchedId;
 
+	/**
+	 * @precondition compares student id searched for with the one in the
+	 *               database
+	 * 
+	 * @postcondition searches for a student to see if it exist or not
+	 * 
+	 * @param id
+	 *            the id to search for
+	 * @return returns true if the student was found, or false if it was not
+	 */
 	public boolean searchStudent(String id) {
 		String query = "SELECT * FROM sain_report.student;";
 		ResultSet rs;
@@ -191,6 +242,11 @@ public class MySql {
 	private ObservableList<String> courses;
 	private ArrayList<String> coursesBag;
 
+	/**
+	 * @postcondition stores all the courses that could be taken into and
+	 *                arraylist and an observablelist to be used for other
+	 *                methods
+	 */
 	public void courses() {
 		courses = FXCollections.observableArrayList();
 		coursesBag = new ArrayList<>();
@@ -212,6 +268,15 @@ public class MySql {
 		}
 	}
 
+	/**
+	 * @precondition compares the student id selected with the one in the
+	 *               database
+	 * 
+	 * @postcondition stores all the courses taken into an arraylist and an
+	 *                observarablelist, adds the total amount of credits that
+	 *                was taken to be used for gpa calcualtions.
+	 * 
+	 */
 	public void coursesTaken() {
 		ctkn = FXCollections.observableArrayList();
 		ctkn.add("COURSES TAKEN\nCOURSE		GRADE	CREDITS");
@@ -239,6 +304,14 @@ public class MySql {
 		}
 	}
 
+	/**
+	 * @precondition compares the student id selected with the one in the
+	 *               database
+	 * 
+	 * @postcondition stores all the courses taken into an arraylist, adds the
+	 *                total amount of credits that are being taken.
+	 * 
+	 */
 	public void coursesTaking() {
 		coursesTakingCresdits = 0;
 		coursesTakingBag = new ArrayList<>();
@@ -262,7 +335,12 @@ public class MySql {
 		}
 	}
 
-	// this populates the an arraylist of all the majors available
+	/**
+	 * 
+	 * @postcondition stores all the majors that can be taken into an arraylist
+	 *                for use later
+	 * 
+	 */
 	public void getMajor() {
 		String query = "SELECT * FROM sain_report.major;";
 		majorBag = new ArrayList<>();
@@ -285,8 +363,13 @@ public class MySql {
 
 	}
 
-	// this populates an arraylist with all the major requirements based on the
-	// major selected
+	/**
+	 * @precondition compares the major id selected with the one in the database
+	 * 
+	 * @postcondition stores all the major requirments into an arraylist, adds
+	 *                the total amount of credits that was taken,
+	 * 
+	 */
 	public void majorRequirements() {
 		majorRequirementBag = new ArrayList<String>();
 		String query = "SELECT * FROM sain_report.major_requirements;";
@@ -308,7 +391,16 @@ public class MySql {
 
 	}
 
-	// this is used by the what-if analysis to change the major temporary
+	/**
+	 * 
+	 * @precondition compares if the major received is not equal to null
+	 * 
+	 * @postcondition sets a new major for the what-if analysis
+	 * 
+	 * @param major
+	 *            the major to change to
+	 * @return return true if major was set, false if not
+	 */
 	public boolean setMajor(String major) {
 		if (major != null) {
 			majorId = major;
@@ -328,6 +420,16 @@ public class MySql {
 	// this method returns an observable list of courses taking
 	private ObservableList<String> tak;
 
+	/**
+	 * 
+	 * @precondition compares if the student id equals the one selected
+	 * 
+	 * @postcondition creates an observablelist of all the courses taken and
+	 *                inserts them
+	 * 
+	 * 
+	 * @return returns the the obseravblelist
+	 */
 	public ObservableList<String> getCoursesTaking() {
 		tak = FXCollections.observableArrayList();
 		tak.add("COURSE		GRADE	CREDITS");
@@ -351,7 +453,13 @@ public class MySql {
 		return tak;
 	}
 
-	// this method returns an observable list of courses taken
+	/**
+	 * 
+	 * @postcondition creates an observablelist of all the courses taken and
+	 *                inserts them
+	 * 
+	 * @return returns the observablelist
+	 */
 	public ObservableList<String> getReqCoursesTaken() {
 
 		ObservableList<String> req = FXCollections.observableArrayList();
@@ -371,6 +479,14 @@ public class MySql {
 	}
 
 	// this method returns an observable list of other courses taken
+	/**
+	 * @postcondition creates an observablelist of all the other courses taken
+	 *                and inserts them
+	 * 
+	 * 
+	 * 
+	 * @return returns the observablelist
+	 */
 	public ObservableList<String> getOtherCoursesTaken() {
 		ObservableList<String> oth = FXCollections.observableArrayList();
 		oth.add("COURSE		GRADE	CREDITS");
@@ -394,14 +510,22 @@ public class MySql {
 		return oth;
 	}
 
-	// this method returns an observable list of failed or withdrawn classes
+	/**
+	 * 
+	 * @precondition compares if the course grade equals W or F
+	 * 
+	 * @postcondition creates an observablelist of all the withdrawn and failed
+	 *                courses taken and inserts them
+	 * 
+	 * @return returns the observablelist
+	 */
 	public ObservableList<String> getFailedWithdrawn() {
 		ObservableList<String> fow = FXCollections.observableArrayList();
 		fow.add("COURSE		GRADE	CREDITS");
 
 		for (int i = 0; i < coursesTakenBag.size(); i++) {
 			String[] s = coursesTakenBag.get(i).split(" ");
-			if (s[2].trim().equals("F") && !s[2].equals("W")) {
+			if (s[2].trim().equals("F") || s[2].trim().equals("W")) {
 				fow.add(s[0] + "		" + s[2] + "		" + s[3]);
 			}
 		}
@@ -411,6 +535,15 @@ public class MySql {
 	}
 
 	// this method returns an observable list of courses needed
+	/**
+	 * 
+	 * @precondition compares all the courses that have been taken and taking
+	 * 
+	 * @postcondition Calculates all the credits and courses that need to be
+	 *                taken
+	 * 
+	 * @return returns the observablelist
+	 */
 	public ObservableList<String> getCoursesNeeded() {
 		ObservableList<String> gcn = FXCollections.observableArrayList();
 		gcn.add("COURSE\t\t\t\t\tCREDITS");
@@ -446,7 +579,15 @@ public class MySql {
 
 	}
 
-	// this method returns an observable list of your summary
+	/**
+	 * 
+	 * @precondition compares the major id to the one selected
+	 * 
+	 * @postcondition generates a summary based on the courses that have been
+	 *                taking and major taking, storing them in an observablelist
+	 * 
+	 * @return returns the observablelist
+	 */
 	public ObservableList<String> getSummary() {
 		ObservableList<String> sum = FXCollections.observableArrayList();
 		sum.add("Minimum GPA:\t\t2.0");
@@ -465,8 +606,11 @@ public class MySql {
 	//////////////// end of observable list for the tables
 	////////////////////////////////////////////////////////////////
 
-	// a refresher method for some data when you change major or search new
-	// student
+	/**
+	 * @postcondition refreshes all the tables, show it shows the most recent
+	 *                data
+	 * 
+	 */
 	public void getAccountData() {
 		getMajor();
 		majorRequirements();
@@ -479,6 +623,14 @@ public class MySql {
 
 	// this method actually takes all your grades that count and calculate your
 	// gpa
+	/**
+	 * 
+	 * @precondition compares the courses current grade in a switch statement
+	 * 
+	 * @postcondition calculates the gpa of all the courses that the student has
+	 * 
+	 * 
+	 */
 	public void calculateGpa() {
 		qualityPoints = 0;
 		// grade is at [3]
@@ -525,8 +677,10 @@ public class MySql {
 
 	}
 
-	// this is a prepared statement that updates the students gpa in the
-	// database
+	/**
+	 * @postcondition a prepared statement that updates the students gpa after
+	 *                the calulation
+	 */
 	public void updateStudentGpa() {
 		String query = "update student set gpa = ? where student_id = ?";
 		try {
@@ -544,6 +698,11 @@ public class MySql {
 	// this is a prepared statement that updates the students credits taken in
 	// the
 	// database
+	/**
+	 * 
+	 * @postcondition a prepared statement that updates the students credits
+	 *                taken after adding them
+	 */
 	public void updateCreditsTaken() {
 		String query = "update student set credits_taken = ? where student_id = ?";
 		try {
@@ -558,6 +717,15 @@ public class MySql {
 		}
 	}
 
+	/**
+	 * @postcondition a prepared statement that updates the grade of the
+	 *                selected course for the admin
+	 * 
+	 * @param course
+	 *            course want to upgrade
+	 * @param newGrade
+	 *            grade to update course
+	 */
 	public void updateSelectedGrade(String course, String newGrade) {
 		String query = "update courses_taken set grade = ? where student_id = ? and course_name = ? and course_number = ?";
 		try {
@@ -574,6 +742,13 @@ public class MySql {
 		}
 	}
 
+	/**
+	 * @postcondition a prepared statement that deletes class currently taking
+	 *                for the admin
+	 * 
+	 * @param course
+	 *            the course to delete
+	 */
 	public void deleteSelectedClass(String course) {
 		String query = "delete from courses_taking where student_id = ? and course_name = ? and course_number = ?";
 		PreparedStatement preparedStmt;
@@ -592,6 +767,13 @@ public class MySql {
 
 	private boolean alreadyTaking;
 
+	/**
+	 * @postcondition a prepared statement that add the selected course to
+	 *                currently taking
+	 * 
+	 * @param selected
+	 *            selected value in the listview
+	 */
 	public void addSelectedClass(String selected) {
 		alreadyTaking = false;
 		String query = " insert into courses_taking (student_id, course_name, course_number, course_credit, course_credit_name)"
@@ -619,6 +801,15 @@ public class MySql {
 
 	}
 
+	/**
+	 * 
+	 * @precondition checks to see if the course name already exist
+	 * 
+	 * @postcondition if exit return true, else false
+	 * @param selected
+	 *            selected value in the listview
+	 * @return returns true if the class was found, and false if it was not
+	 */
 	public boolean courseNotTakenCheck(String selected) {
 		String query = "SELECT * FROM sain_report.courses_taking;";
 		ResultSet rs;
@@ -641,6 +832,16 @@ public class MySql {
 		return true;
 	}
 
+	/**
+	 * 
+	 * @precondition if the course equals the selected sent
+	 * 
+	 * @postcondition sends back the area required
+	 * 
+	 * @param selected
+	 *            selected value in the listview
+	 * @return returns the string of course
+	 */
 	public String courseSearch(String selected) {
 		String query = "SELECT * FROM sain_report.courses;";
 		ResultSet rs;

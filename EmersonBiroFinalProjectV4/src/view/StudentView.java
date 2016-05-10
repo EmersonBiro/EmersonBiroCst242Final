@@ -27,10 +27,26 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+/**
+ * 
+ * This class extends ViewGeneric which is used as a switch for showing
+ * different scenes This class produces the view that the student see when they
+ * login.
+ *
+ */
 public class StudentView extends ViewGeneric {
 
 	private BorderPane root;
 
+	/**
+	 * This is the StudentView constructor that is called when you want to make
+	 * the new view It takes in a stage and an observer array.
+	 * 
+	 * @param stage
+	 *            the stage the view will be shown on
+	 * @param obsArr
+	 *            an arraylist of observers
+	 */
 	public StudentView(Stage stage, ArrayList<Observer> obsArr) {
 		super(stage, new BorderPane(), GloblVars.SV_WIDTH, GloblVars.SV_HEIGHT, obsArr);
 		root = (BorderPane) getRoot();
@@ -39,6 +55,9 @@ public class StudentView extends ViewGeneric {
 		init();
 	}
 
+	/**
+	 * @postcondition sets what is at the bottom of the BorderPane
+	 */
 	public void setBottom() {
 		bottom();
 	}
@@ -46,6 +65,13 @@ public class StudentView extends ViewGeneric {
 	private Label gpaR;
 	private boolean admin = false;
 
+	/**
+	 * @postcondition sets the top of the BorderPane with the information of the
+	 *                student to the top
+	 * 
+	 * @param info
+	 *            array of student info
+	 */
 	public void studentInfoTop(String[] info) {
 		GridPane gp = new GridPane();
 		gp.setPadding(new Insets(10, 10, 0, 10));
@@ -156,6 +182,10 @@ public class StudentView extends ViewGeneric {
 	}
 	///////////////////////////////////////////////
 
+	/**
+	 * @postcondition this method sets the center of the BorderPane to the
+	 *                listviews with the courses
+	 */
 	public void setCenter() {
 		VBox center = new VBox(10);
 		center.setPadding(new Insets(10, 10, 10, 10));
@@ -215,6 +245,10 @@ public class StudentView extends ViewGeneric {
 
 	boolean faculty;
 
+	/**
+	 * @postcondition this method set the bottom of the BorderPane to the
+	 *                buttons that allow for interaction
+	 */
 	public void bottom() {
 		HBox bottom = new HBox(10);
 		bottom.setPadding(new Insets(10, 10, 10, 10));
@@ -251,6 +285,16 @@ public class StudentView extends ViewGeneric {
 		faculty = false;
 	}
 
+	/**
+	 * @precondition if there is something selected in the ComboBox
+	 * 
+	 * @postcondition gets the major that you have selected in the the what-if
+	 *                analysis
+	 * 
+	 * @param majors
+	 *            the bag of all the majors
+	 * @return returns the major that you selected for the what-if analysis
+	 */
 	public String whatIfChooseMajor(ArrayList<String> majors) {
 		List<String> choices = new ArrayList<>();
 		for (int i = 0; i < majors.size(); i++) {
@@ -274,7 +318,15 @@ public class StudentView extends ViewGeneric {
 	private String selected;
 	private ComboBox<String> changeGradet;
 	private ComboBox<String> addClasst;
-	
+
+	/**
+	 * @postcondition this method displays a new stage that lets you change
+	 *                courses taken grade, based on what was selected in the
+	 *                ComboBox
+	 * 
+	 * @param s
+	 *            an list of courses taken
+	 */
 	public void modifyCoursesTaken(ObservableList<String> s) {
 		Stage mct = new Stage();
 		mct.setTitle("Change Courses Taken");
@@ -290,7 +342,7 @@ public class StudentView extends ViewGeneric {
 		Label changeGrade = new Label("Select From Right,\n And Select New Grade");
 
 		changeGradet = new ComboBox();
-		changeGradet.getItems().addAll("A", "B+", "B", "C+", "C", "D+", "D", "F");
+		changeGradet.getItems().addAll("A", "B+", "B", "C+", "C", "D+", "D", "F", "W");
 		changeGradet.setValue("A");
 
 		Button mdfySelected = new Button("Change Grade");
@@ -326,6 +378,17 @@ public class StudentView extends ViewGeneric {
 		mct.show();
 	}
 
+	/**
+	 * 
+	 * @postcondition this method displays a new stage that lets you add or
+	 *                remove courses that are currently being taken, based on
+	 *                what is selected in the listview
+	 * 
+	 * @param cTaking
+	 *            list of courses taking
+	 * @param courses
+	 *            list of courses
+	 */
 	public void modifyCoursesTaking(ObservableList<String> cTaking, ObservableList<String> courses) {
 		Stage mcting = new Stage();
 		mcting.setTitle("Change Courses Taking");
@@ -348,7 +411,7 @@ public class StudentView extends ViewGeneric {
 		Button delete = new Button("Delete");
 		Button close = new Button("Close");
 
-		right.getChildren().addAll(changeGrade, addClasst,add,delete, close);
+		right.getChildren().addAll(changeGrade, addClasst, add, delete, close);
 
 		coursesTaken.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 
@@ -362,8 +425,8 @@ public class StudentView extends ViewGeneric {
 			NotifyObservers(Events.ADD_CLASS_BUTTON);
 			mcting.close();
 		});
-		
-		delete.setOnAction(e->{
+
+		delete.setOnAction(e -> {
 			NotifyObservers(Events.DELTE_CLASS_BUTTON);
 			mcting.close();
 		});
@@ -386,7 +449,7 @@ public class StudentView extends ViewGeneric {
 	public String getChangeGradet() {
 		return (String) changeGradet.getValue();
 	}
-	
+
 	public String getAddClasst() {
 		return (String) addClasst.getValue();
 	}
